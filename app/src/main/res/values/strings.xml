@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">RSSReader</string>
+    <string name="source_list_title">Your sources</string>
+    <string name="ok_source">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="auto_update">Auto update</string>
+    <string name="delete_source">Delete source</string>
+    <string name="change_source">Change source</string>
+</resources>

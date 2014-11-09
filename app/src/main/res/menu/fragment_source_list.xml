@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/menu_item_add_source"
+        android:icon="@android:drawable/ic_menu_add"
+        android:title="@string/ok_source"
+        android:showAsAction="ifRoom"/>
+
+    <item android:id="@+id/menu_item_auto_update"
+        android:title="@string/auto_update"
+        android:icon="@android:drawable/ic_popup_sync"
+        android:showAsAction="ifRoom"/>
+</menu>
