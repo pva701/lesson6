@@ -20,6 +20,6 @@ public class SourceListActivity extends FragmentActivity {
             f = new SourceListFragment();
             fm.beginTransaction().add(R.id.container, f).commit();
         }
-        setTitle("Feeds");
+        setTitle("Sources");
     }
 }

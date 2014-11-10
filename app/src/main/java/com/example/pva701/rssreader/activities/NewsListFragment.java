@@ -80,6 +80,7 @@ public class NewsListFragment extends Fragment implements LoaderManager.LoaderCa
             adapter.add(newsCursor.getNews());
         adapter.notifyDataSetChanged();
         refreshLayout.setRefreshing(false);
+        cursor.close();
     }
 
     @Override
@@ -138,8 +139,13 @@ public class NewsListFragment extends Fragment implements LoaderManager.LoaderCa
 
             @Override
             public void onIncorrectRSSFeed() {
-                Log.i("NewsListFragment", "onIncorrectRSSFeed");
                 Toast.makeText(getActivity(), "Not RSS feed", Toast.LENGTH_SHORT).show();
+                refreshLayout.setRefreshing(false);
+            }
+
+            @Override
+            public void onUnknownError() {
+                Toast.makeText(getActivity(), "Unknown error, try again", Toast.LENGTH_SHORT).show();
                 refreshLayout.setRefreshing(false);
             }
         };
@@ -152,8 +158,8 @@ public class NewsListFragment extends Fragment implements LoaderManager.LoaderCa
         final View v = inflater.inflate(R.layout.fragment_news_list, container, false);
         refreshLayout = (SwipeRefreshLayout)v.findViewById(R.id.refresh);
         refreshLayout.setColorSchemeColors(
-                Color.parseColor("#008b45"),
-                Color.parseColor("#00cd66"),
+                Color.parseColor("#00cb45"),
+                Color.parseColor("#00dd66"),
                 Color.parseColor("#00ee76"),
                 Color.parseColor("#00ff7f"));
 
@@ -186,7 +192,6 @@ public class NewsListFragment extends Fragment implements LoaderManager.LoaderCa
                 startActivity(intent);
                 cur.setRead(true);
                 HELPER.updateNews(cur);
-                adapter.notifyDataSetChanged();
             }
         });
         if (adapter != null)
@@ -200,10 +205,12 @@ public class NewsListFragment extends Fragment implements LoaderManager.LoaderCa
     public void onResume() {
         super.onResume();
         HELPER.addListener(newsChangedListener);
-        if (HELPER.isReloadingNews(source.getId())) {
+        if (HELPER.isReloadingNews(source.getId()))
             refreshLayout.setRefreshing(true);
-        } else if (refreshLayout.isRefreshing())
+        else if (refreshLayout.isRefreshing())
             getLoaderManager().restartLoader(LOAD_NEWS, null, this);
+        else if (adapter != null)
+            adapter.notifyDataSetChanged();
     }
 
     @Override

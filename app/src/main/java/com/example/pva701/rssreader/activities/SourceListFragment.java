@@ -43,6 +43,8 @@ import com.example.pva701.rssreader.Source;
 public class SourceListFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final int REQUEST_ADD_SOURCE = 1;
     private static final int REQUEST_CHANGE_SOURCE = 2;
+    private static final int LOAD_SOURCES = 12;
+
     private static final String DIALOG_ADD_SOURCE = "DIALOG_ADD_SOURCE";
     private ListView listView;
     private SourcesArrayAdapter adapter;
@@ -111,12 +113,12 @@ public class SourceListFragment extends Fragment implements LoaderManager.Loader
         sourcesChangedListener = new OperationHelper.NewsSourceListener() {
             @Override
             public void onUpdateSources() {
-                getLoaderManager().restartLoader(0, null, SourceListFragment.this);
+                getLoaderManager().restartLoader(LOAD_SOURCES, null, SourceListFragment.this);
             }
 
             @Override
             public void onUpdateOneSource() {
-                getLoaderManager().restartLoader(0, null, SourceListFragment.this);
+                getLoaderManager().restartLoader(LOAD_SOURCES, null, SourceListFragment.this);
             }
         };
         HELPER.addListener(sourcesChangedListener);

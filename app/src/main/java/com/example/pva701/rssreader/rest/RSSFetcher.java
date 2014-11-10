@@ -11,7 +11,9 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URL;
@@ -92,7 +94,7 @@ public class RSSFetcher {
 
         public void put(News news, String key, String value) {
             if (key.equalsIgnoreCase("title"))
-                news.setTitle(trim(value));
+                news.setTitle(value.trim());
             else if (key.equalsIgnoreCase("link"))
                 news.setLink(value);
             else if
@@ -111,7 +113,7 @@ public class RSSFetcher {
         }
 
         @Override
-        public void characters(char ch[], int start, int length) throws SAXException {
+        public void characters(char ch[], int start, int length) throws SAXException, SAXException, IllegalArgumentException {
             textTag.set(textTag.size() - 1, textTag.get(textTag.size() - 1) + new String(ch, start, length));
         }
 
@@ -120,42 +122,57 @@ public class RSSFetcher {
         }
     }
 
-    public static ArrayList<News> fetch(String... strings) throws UnknownHostException, SAXException{
+    public static InputStream getInputStream(String url) throws UnknownHostException {
+        InputStream inputStream = null;
+        try {
+            URLConnection connection = new URL(url).openConnection();
+            connection.setConnectTimeout(10 * 1000);
+            connection.setReadTimeout(20 * 1000);
+            inputStream = connection.getInputStream();
+        } catch (UnknownHostException e) {
+            throw e;
+        }
+        catch (Exception e) {}
+        return inputStream;
+    }
+
+    public static ArrayList<News> fetch(String... strings) throws UnknownHostException, SAXException, IllegalArgumentException {
         //Log.i("RSSFetcher", "in doInBackground");
         ArrayList <News> ret = new ArrayList<News>();
         for (int urlId = 0; urlId < strings.length; ++urlId) {
             String url = strings[urlId];
-            URLConnection connection;
-            BufferedReader in = null;
+
             try {
-                connection = new URL(url).openConnection();
-                connection.setConnectTimeout(10 * 1000);
-                connection.setReadTimeout(20 * 1000);
-                in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                String inpLine;
-                StringWriter writer = new StringWriter();
-                while ((inpLine = in.readLine()) != null)
-                    writer.append(inpLine);
-                    /*if (firstLine) {
-                        int pos = inpLine.indexOf("encoding") + 10;
-                        while (inpLine.charAt(pos) != '\'')
-                            encoding += inpLine.charAt(pos++);
-                        firstLine = false;
-                    }*/
+                String encoding = "";
+                InputStream stream = getInputStream(url);
+                BufferedReader in = new BufferedReader(new InputStreamReader(stream));
+                String inpLine = in.readLine();
+                while (inpLine.trim().equals("")) inpLine = in.readLine();
                 in.close();
-                String xml = writer.toString();
+
+                int pos = inpLine.indexOf("encoding") + 10;
+                while (inpLine.charAt(pos) != '\"'&& inpLine.charAt(pos) != '\'')
+                    encoding += inpLine.charAt(pos++);
+                stream.close();
 
                 SAXParserFactory factory = SAXParserFactory.newInstance();
                 SAXParser saxParser = factory.newSAXParser();
                 NewsParseHandler handler = new NewsParseHandler();
-                InputSource inputSource = new InputSource(new StringReader(xml));
+                //InputSource inputSource = new InputSource(new StringReader(xml));*/
+                Reader isr = new InputStreamReader(getInputStream(url), encoding);
+                InputSource inputSource = new InputSource();
+                inputSource.setCharacterStream(isr);
                 saxParser.parse(inputSource, handler);
                 ret.addAll(handler.getNewsItems());
             } catch (UnknownHostException e) {
                 throw e;
             } catch (SAXException e) {
                 throw e;
-            } catch (Exception e) {}
+            } catch (StringIndexOutOfBoundsException e) {
+                throw new SAXException();
+            } catch (Exception e) {
+                throw new IllegalArgumentException(url);
+            }
         }
         return ret;
     }

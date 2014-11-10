@@ -32,6 +32,7 @@ public class Processor {
     public static final int UPDATE_ONE_SOURCE = 4;
     public static final int INCORRECT_URL = 5;
     public static final int INCORRECT_RSS_FEED = 6;
+    public static final int UNKNOWN_ERROR = 7;
 
     private static Processor instance;
     private Handler handler;
@@ -103,6 +104,9 @@ public class Processor {
         } catch (SAXException e) {
             if (handler != null)
                 handler.obtainMessage(Processor.INCORRECT_RSS_FEED).sendToTarget();
+        } catch (IllegalArgumentException e) {
+            if (handler != null)
+                handler.obtainMessage(Processor.UNKNOWN_ERROR).sendToTarget();
         }
     }
 
@@ -135,6 +139,14 @@ public class Processor {
     }
 
     public void updateSource(Source source) {
+        Source prevSource = QueriesManager.get(context).querySource(source.getId());
+        if (!prevSource.getUrl().equals(source.getUrl())) {
+            source.setLastUpdate(new Date(0));
+            QueriesManager.get(context).deleteNewsBySourceId(source.getId());
+            if (handler != null)
+                handler.obtainMessage(Processor.UPDATE_NEWS).sendToTarget();
+        }
+
         QueriesManager.get(context).updateSource(source);
         if (handler != null)
             handler.obtainMessage(Processor.UPDATE_ONE_SOURCE).sendToTarget();

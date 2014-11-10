@@ -51,8 +51,13 @@ public class QueriesManager {
     }
 
 
-    public void deleteNews(int id) {
-        context.getContentResolver().delete(RSSContentProvider.NEWS_CONTENT_URI, RSSDatabaseHelper.COLUMN_NEWS_ID + "=" + id, null);
+    public void deleteNews(int newsId) {
+        context.getContentResolver().delete(RSSContentProvider.NEWS_CONTENT_URI, RSSDatabaseHelper.COLUMN_NEWS_ID + "=" + newsId, null);
+    }
+
+    public void deleteNewsBySourceId(int sourceId) {
+        context.getContentResolver().delete(RSSContentProvider.NEWS_CONTENT_URI,
+                RSSDatabaseHelper.COLUMN_NEWS_SOURCE_ID + "=" + sourceId, null);
     }
 
     public int getUnreadMessages() {
@@ -93,5 +98,12 @@ public class QueriesManager {
 
     public void deleteSource(int id) {
         context.getContentResolver().delete(RSSContentProvider.SOURCES_CONTENT_URI, RSSDatabaseHelper.COLUMN_SOURCES_ID + " = " + id, null);
+    }
+
+    public Source querySource(int sourceId) {
+        Cursor cursor = context.getContentResolver().query(RSSContentProvider.SOURCES_CONTENT_URI, null,
+                RSSDatabaseHelper.COLUMN_SOURCES_ID + " = " + sourceId, null, null);
+        cursor.moveToNext();
+        return new SourceCursor(cursor).getSource();
     }
 }

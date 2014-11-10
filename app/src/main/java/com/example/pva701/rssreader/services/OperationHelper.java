@@ -48,6 +48,9 @@ public class OperationHelper {//Singlet
                 else if (msg.what == Processor.INCORRECT_RSS_FEED)
                     for (NewsSourceListener e: listeners)
                         e.onIncorrectRSSFeed();
+                else if (msg.what == Processor.UNKNOWN_ERROR)
+                    for (NewsSourceListener e: listeners)
+                        e.onUnknownError();
             }
         });
     }
@@ -119,5 +122,6 @@ public class OperationHelper {//Singlet
         public void onUpdateOneSource() {}
         public void onIncorrectUrl() {}
         public void onIncorrectRSSFeed() {}
+        public void onUnknownError() {}
     }
 }
