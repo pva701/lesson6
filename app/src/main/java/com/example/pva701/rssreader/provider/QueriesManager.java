@@ -93,7 +93,8 @@ public class QueriesManager {
     }
 
     public void deleteWhereEarlyThanTime(int sourceId, int lastPubDate) {
-        context.getContentResolver().delete(RSSContentProvider.NEWS_CONTENT_URI, RSSDatabaseHelper.COLUMN_NEWS_PUB_DATE + "<" + lastPubDate, null);
+        context.getContentResolver().delete(RSSContentProvider.NEWS_CONTENT_URI,
+                RSSDatabaseHelper.COLUMN_NEWS_PUB_DATE + "<" + lastPubDate + " AND " + RSSDatabaseHelper.COLUMN_NEWS_SOURCE_ID + " = " + sourceId, null);
     }
 
     public void deleteSource(int id) {
